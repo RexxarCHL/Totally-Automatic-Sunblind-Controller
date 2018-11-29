@@ -8,7 +8,6 @@ const float LAT = 39.299236;
 const float LONG = -76.609383;
 
 void setup_rtc() {
-    Serial.begin(SERIAL_RATE);
     if (! rtc.begin()) {
         Serial.println("Couldn't find RTC");
         while (1);
@@ -44,7 +43,7 @@ bool is_night(DateTime now) {
      */
 
     // Data needed for sunrise/sunset calculation
-    const float d = (float) rtc.date2days(2000, now.month(), now.day())  // Get the number of days from the start of the year
+    const float d = (float) date_to_days(now.month(), now.day())  // Get the number of days from the start of the year
     const float R = 6378.0; // The radius of the earth, in km
     const float r = 149598000; // The distance to the sun, in km
     const float epsilon = degrees_to_radians(23.45); // Radians between the xy-plane and the ecliptic plane
@@ -78,4 +77,20 @@ bool is_night(DateTime now) {
 
 float degrees_to_radians(float degrees) {
     return M_PI * degrees / 180.0;
+}
+
+int date_to_days(int month, int day) {
+    int days = day;
+    // month -= 1; // Don't count the current month
+    while (--month > 0) {
+        if (month == 2)
+            days += 28;
+        else if (month == 1 || month == 3 || month == 7 || 
+                 month == 8 || month == 10 || month == 12)
+            days += 31;
+        else:
+            days += 30;
+    };
+
+    return days
 }
