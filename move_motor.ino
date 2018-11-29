@@ -1,15 +1,10 @@
-#include <Servo.h>
-
-// TODO: Change pin assignment
-const int SERVO_PIN = 9;  // Control pin for the servo
-const int SERVO_ENABLE = 10;  // Transistor base pin
-
-Servo servo_motor;
-const int SERVO_DELAY = 15;  // Time to wait for servo to get in position
+#include "tasc.h"
 
 void setup_servo() {
     pinMode(SERVO_ENABLE, OUTPUT);
     servo_motor.attach(SERVO_PIN);
+
+    Serial.println("Servo initialized");
 }
 
 void move_servo(int pos, bool relative=false) {

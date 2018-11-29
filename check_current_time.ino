@@ -1,12 +1,5 @@
-#include "RTClib.h"
-#include <math.h>
+#include "tasc.h"
 
-#if defined(ARDUINO_ARCH_SAMD)
-// for Zero, output on USB Serial console, remove line below if using programming port to program the Zero!
-   #define Serial SerialUSB
-#endif
-
-RTC_PCF8523 rtc;
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 // Define the latitude and longitude of Baltimore for sunrise/sunset calculation
@@ -29,6 +22,8 @@ void setup_rtc() {
         // January 21, 2014 at 3am you would call:
         // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
     }
+
+    Serial.println("RTC initialized");
 }
 
 DateTime get_current_time() {
