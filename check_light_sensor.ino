@@ -55,6 +55,10 @@ void configure_sensor() {
   Serial.println(F(""));
 }
 
+<<<<<<< HEAD
 int get_light_reading() {
+=======
+uint16_t get_light_reading() {
+>>>>>>> 8477a8674d67c9250cca19e55ff394ac6f4991b0
     return tsl.getLuminosity(TSL_2591_VISIBLE);
 }
