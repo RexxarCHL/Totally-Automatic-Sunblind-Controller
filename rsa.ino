@@ -77,3 +77,7 @@ void move_blind_angle(int offset){
     move_servo(target_blind_pos);
     current_blind_pos = target_blind_pos;
 }
+
+bool check_battery_level() {
+    // TODO
+}

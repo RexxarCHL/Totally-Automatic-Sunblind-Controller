@@ -8,9 +8,5 @@ void setup_pir_sensor() {
 }
 
 bool check_pir_sensor() {
-    val = digitalRead(PIR_PIN);
-    if (val == HIGH)
-        return true;
-    else
-        return false;
+    return digitalRead(PIR_PIN);
 }

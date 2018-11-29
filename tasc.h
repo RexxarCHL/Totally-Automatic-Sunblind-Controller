@@ -37,7 +37,7 @@ const float K_prop = 3.0;
 const float K_D = 0.5;
 
 void setup_servo();
-void move_servo(int blind_pos, bool relative=false);
+void move_servo(int blind_pos);
 
 // Occupancy sensor
 const int PIR_ENABLE = 3;
@@ -64,7 +64,7 @@ enum SystemState {
 void adjust_blind_angle();
 void move_blind_angle(int offset);
 void check_button(); // TODO
-void check_battery_level(); // TODO
+bool check_battery_level(); // TODO
 
 // It takes about 4 turns from open to fully closed
 // current_blind_pos = [0, 64] and there are 16 positions in each turn 

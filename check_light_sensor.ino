@@ -56,5 +56,5 @@ void configure_sensor() {
 }
 
 int get_light_reading() {
-    return tsl.getLuminosity(TSL_2591_VISIBLE);
+    return tsl.getLuminosity(TSL2591_VISIBLE);
 }

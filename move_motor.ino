@@ -23,15 +23,9 @@ void setup_servo() {
     Serial.println("Servo initialized");
 }
 
-const int MOTOR_PIN1 = 6;
-const int MOTOR_PIN2 = 5;
-const int MOTOR_ENABLE = 11;
-const int MOTOR_ENCODER_A = 2;
-const int MOTOR_ENCODER_B = 3;
-
 void move_servo(int target_blind_pos) {
     // Map blind angle to servo position
-    int target_servo_position = target_blind_pos / ONE_TURN * EVENT_COUNT_PER_REV
+    int target_servo_position = target_blind_pos / ONE_TURN * EVENT_COUNT_PER_REV;
 
     // Calculate error
     float error, previous_error, deriv_error;
@@ -39,7 +33,7 @@ void move_servo(int target_blind_pos) {
     unsigned long previous_time = millis();
     
     do {
-        error = float(target_servo_position - servo_position) / EVENT_COUNT_PER_REV * 2*M_PI
+        error = float(target_servo_position - servo_position) / EVENT_COUNT_PER_REV * 2*M_PI;
         // deriv_error = (error - previous_error) / (float(DELTA_T)/1000.0);
         enable_motor_direction(error >= 0); // Turn on the motor
 
@@ -53,7 +47,12 @@ void move_servo(int target_blind_pos) {
 
         previous_time = millis();
         previous_error = error;
-    } while(abs(error) > 0.0001)
+
+        if (!check_battery_level()){
+            Serial.println("Battery low!");
+            break;
+        }
+    } while(abs(error) > 0.0001);
 
     // Turn off the motor
     disable_motor();
@@ -85,12 +84,12 @@ void isr_ch_b() {
 
 void enable_motor_direction(bool dir) {
     if (dir) { // CW
-        digitalWrite(BRIDGE_INPUT1, HIGH);
-        digitalWrite(BRIDGE_INPUT2, LOW);
+        digitalWrite(MOTOR_PIN1, HIGH);
+        digitalWrite(MOTOR_PIN2, LOW);
     }
     else { // CCW
-        digitalWrite(BRIDGE_INPUT1, LOW);
-        digitalWrite(BRIDGE_INPUT2, HIGH);
+        digitalWrite(MOTOR_PIN1, LOW);
+        digitalWrite(MOTOR_PIN2, HIGH);
     }
 }
 
