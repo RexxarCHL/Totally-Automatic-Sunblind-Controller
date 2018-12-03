@@ -8,24 +8,67 @@ void setup() {
     setup_servo();
     setup_pir_sensor();
     setup_light_sensor();
+    setup_others();
 
     Serial.println("All sensors initialized");
 
+    // Adjust to the best blind angle
+    adjust_blind_angle();
+    Serial.println("Blind angle adjusted");
+
     // Initialize the state
+    current_system_state = AUTO;
 }
 
 void loop() {
-    // TODO: button control and state change
     check_battery_level();
+
+    uint32_t current_time = get_current_time().unixtime(); // Get current time
     switch (current_system_state) {
         case AUTO:
-            //TODO: check PIR, check current time, adjust blind angle if necessary
+            // Check PIR sensor
+            check_pir_sensor();
+            
+
+            if ((pir_state == HIGH) && ((current_time - last_blind_adjust) > 900)) {
+                // Human presence detected and 15 minutes have passed since last adjustment
+                adjust_blind_angle();
+            }
+            else {
+                // No presence detected. Check time since last adjustment
+                if ((current_time - last_blind_adjust) > 3600) {
+                    // One hour has passed since last blind adjustment
+                    adjust_blind_angle();
+                }
+            }
+
             // Check buttons for AUTO/MANUAL switch
+            if (digitalRead(MANUAL_BUTTON_PIN) == LOW) {
+                // Manual mode button pressed! Switch to manual mode
+                current_system_state = MANUAL;
+                last_manual_action = current_time;
+            }
+
             break;
+
         case MANUAL:
-            // TODO: use buttons to turn the blind up and down
-            // Also check buttons for AUTO/MANUAL switch
-            // resume to AUTO if enough time has passed
+            // TODO: Add an led for manual/auto indication, if possible
+            if ((current_time - last_manual_action > 3600) || (digitalRead(MANUAL_BUTTON_PIN) == LOW)) {
+                // One hour have passed since last manual action or manual mode button is pressed again
+                // Switch back to AUTO
+                current_system_state = AUTO;
+            }
+            else {
+                // Check up/down buttons and adjust the blind accordingly
+                int offset = 0;
+                if (digitalRead(OPEN_BUTTON_PIN) == LOW)
+                    offset = 1;
+                else if (digitalRead(CLOSE_BUTTON_PIN) == LOW)
+                    offset = -1;
+
+                // Adjust the blind
+                move_blind_angle(offset);
+            }
             break;
     }
 }
@@ -91,6 +134,8 @@ void adjust_blind_angle() {
 
     // Turn off the light sensor
     digitalWrite(LIGHT_SENSOR_ENABLE, LOW);
+
+    last_blind_adjust = get_current_time().unixtime();
 }
 
 bool move_blind_angle(int offset){

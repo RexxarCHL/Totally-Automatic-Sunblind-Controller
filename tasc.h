@@ -42,6 +42,7 @@ void move_servo(int blind_pos);
 // Occupancy sensor
 const int PIR_ENABLE = 3;
 const int PIR_PIN = 2;
+bool pir_state = LOW;
 
 void setup_pir_sensor();
 bool check_pir_sensor();
@@ -85,5 +86,7 @@ const int ONE_TURN = MAX_ANGLE_VALUE / TURNS_TO_CLOSE;
 const int HALF_TURN = ONE_TURN / 2;
 const int MAX_DECREASING_COUNT = 2;
 int current_blind_pos = 0;
+uint32_t last_blind_adjust = 0;
+uint32_t last_manual_action = 0;
 
 #endif
