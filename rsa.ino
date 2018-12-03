@@ -171,7 +171,7 @@ bool check_battery_level() {
         // Block until charged
         int k = 0;
         do {
-            led_status(status)
+            led_status(status);
             delay(1000);
             k += 1;
         } while (analogRead(BATTERY_CHECK_PIN) < 32);
