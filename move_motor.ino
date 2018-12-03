@@ -24,6 +24,8 @@ void setup_servo() {
 }
 
 void move_servo(int target_blind_pos) {
+    interrupts(); // enable interrupts
+
     // Map blind angle to servo position
     int target_servo_position = target_blind_pos / ONE_TURN * EVENT_COUNT_PER_REV;
 
@@ -56,6 +58,8 @@ void move_servo(int target_blind_pos) {
 
     // Turn off the motor
     disable_motor();
+
+    noInterrupts(); // Disable interrupts
 }
 
 void isr_ch_a() {

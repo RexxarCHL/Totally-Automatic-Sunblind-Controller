@@ -59,12 +59,23 @@ enum SystemState {
     INIT,
     MANUAL,
     AUTO
-} state;
+} current_system_state;
 
+
+void setup_others();
 void adjust_blind_angle();
-void move_blind_angle(int offset);
+bool move_blind_angle(int offset);
 void check_button(); // TODO
 bool check_battery_level(); // TODO
+void set_color(int red, int green, int blue);
+void led_status(int state);
+const int BATTERY_CHECK_PIN = 7;
+const int MANUAL_BUTTON_PIN = 8;
+const int OPEN_BUTTON_PIN = 9;
+const int CLOSE_BUTTON_PIN = 10;
+const int LED_RED_PIN = 11;
+const int LED_GREEN_PIN = 12;
+const int LED_BLUE_PIN = 13;
 
 // It takes about 4 turns from open to fully closed
 // current_blind_pos = [0, 64] and there are 16 positions in each turn 
