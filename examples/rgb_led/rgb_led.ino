@@ -3,9 +3,9 @@
  * https://learn.adafruit.com/adafruit-arduino-lesson-3-rgb-leds/arduino-sketch
  */
  
-int redPin = 11;
-int greenPin = 10;
-int bluePin = 9;
+int redPin = 10;
+int greenPin = 11;
+int bluePin = 12;
  
 //uncomment this line if using a Common Anode LED
 //#define COMMON_ANODE

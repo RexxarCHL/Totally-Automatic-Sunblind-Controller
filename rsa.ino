@@ -1,76 +1,86 @@
 #include "tasc.h"
 
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(57600);
+    Serial.println("setup: Initializing...");
 
     // Initialize the sensors
     setup_rtc();
     setup_servo();
-    setup_pir_sensor();
     setup_light_sensor();
+    setup_pir_sensor();
     setup_others();
 
-    Serial.println("All sensors initialized");
+    Serial.println("setup: All sensors initialized");
 
-    // Adjust to the best blind angle
-    adjust_blind_angle();
-    Serial.println("Blind angle adjusted");
+    // // Adjust to the best blind angle
+    // adjust_blind_angle();
+    // Serial.println("Blind angle adjusted");
 
-    // Initialize the state
-    current_system_state = AUTO;
+    // // Initialize the state
+    // current_system_state = AUTO;
 }
 
 void loop() {
-    check_battery_level();
-
-    uint32_t current_time = get_current_time().unixtime(); // Get current time
-    switch (current_system_state) {
-        case AUTO:
-            // Check PIR sensor
-            check_pir_sensor();
-            
-
-            if ((pir_state == HIGH) && ((current_time - last_blind_adjust) > 900)) {
-                // Human presence detected and 15 minutes have passed since last adjustment
-                adjust_blind_angle();
-            }
-            else {
-                // No presence detected. Check time since last adjustment
-                if ((current_time - last_blind_adjust) > 3600) {
-                    // One hour has passed since last blind adjustment
-                    adjust_blind_angle();
-                }
-            }
-
-            // Check buttons for AUTO/MANUAL switch
-            if (digitalRead(MANUAL_BUTTON_PIN) == LOW) {
-                // Manual mode button pressed! Switch to manual mode
-                current_system_state = MANUAL;
-                last_manual_action = current_time;
-            }
-
-            break;
-
-        case MANUAL:
-            // TODO: Add an led for manual/auto indication, if possible
-            if ((current_time - last_manual_action > 3600) || (digitalRead(MANUAL_BUTTON_PIN) == LOW)) {
-                // One hour have passed since last manual action or manual mode button is pressed again
-                // Switch back to AUTO
-                current_system_state = AUTO;
-            }
-            else {
-                // Check up/down buttons and adjust the blind accordingly
-                int offset = 0;
-                if (digitalRead(OPEN_BUTTON_PIN) == LOW)
-                    offset = 1;
-                else if (digitalRead(CLOSE_BUTTON_PIN) == LOW)
-                    offset = -1;
-
-                // Adjust the blind
-                move_blind_angle(offset);
-            }
-            break;
+    for (int i = 0; i < MAX_ANGLE_VALUE; i++) { 
+        move_blind_angle(1);
+        delay(1000);
     }
+    
+    for (int i = 0; i < MAX_ANGLE_VALUE; i++) { 
+        move_blind_angle(-1);
+        delay(1000);
+    }
+    // check_battery_level();
+
+    // uint32_t current_time = get_current_time().unixtime(); // Get current time
+    // switch (current_system_state) {
+    //     case AUTO:
+    //         digitalWrite(MODE_LED_PIN, LOW);
+    //         // Check PIR sensor
+    //         check_pir_sensor();
+    //         if ((pir_state == HIGH) && ((current_time - last_blind_adjust) > 900)) {
+    //             // Human presence detected and 15 minutes have passed since last adjustment
+    //             adjust_blind_angle();
+    //         }
+    //         else {
+    //             // No presence detected. Check time since last adjustment
+    //             if ((current_time - last_blind_adjust) > 3600) {
+    //                 // One hour has passed since last blind adjustment
+    //                 adjust_blind_angle();
+    //             }
+    //         }
+
+    //         // Check buttons for AUTO/MANUAL switch
+    //         if (digitalRead(MANUAL_BUTTON_PIN) == LOW) {
+    //             // Manual mode button pressed! Switch to manual mode
+    //             current_system_state = MANUAL;
+    //             last_manual_action = current_time;
+    //         }
+
+    //         break;
+
+    //     case MANUAL:
+    //         digitalWrite(MODE_LED_PIN, HIGH);
+    //         // TODO: Add an led for manual/auto indication, if possible
+    //         if ((current_time - last_manual_action > 3600) || (digitalRead(MANUAL_BUTTON_PIN) == LOW)) {
+    //             // One hour have passed since last manual action or manual mode button is pressed again
+    //             // Switch back to AUTO
+    //             current_system_state = AUTO;
+    //         }
+    //         else {
+    //             // Check up/down buttons and adjust the blind accordingly
+    //             int offset = 0;
+    //             if (digitalRead(OPEN_BUTTON_PIN) == LOW)
+    //                 offset = 1;
+    //             else if (digitalRead(CLOSE_BUTTON_PIN) == LOW)
+    //                 offset = -1;
+
+    //             // Adjust the blind
+    //             move_blind_angle(offset);
+    //         }
+    //         break;
+    // }
 }
 
 void setup_others() {
@@ -148,24 +158,33 @@ bool move_blind_angle(int offset){
     move_servo(target_blind_pos);
     current_blind_pos = target_blind_pos;
 
-    if (~check_battery_level())
-        return false; // Battery level was too low!
-    return true;
+    return check_battery_level();
 }
 
 bool check_battery_level() {
     // Check battery level and block until battery is charged enough
+    // Analog read returns in the range of [0, 1023]
+    // Battery voltage = 9V ~ 6V
+    // Analog read results = 640 ~ 840
     int battery_level = analogRead(BATTERY_CHECK_PIN);
 
     int status = 0;
-    if (battery_level > 128) 
+    if (battery_level > 790) {
         status = 0;
-    else if (battery_level > 64)
+        Serial.println("Battery level: HIGH");
+    }
+    else if (battery_level > 740) {
         status = 1;
-    else if (battery_level > 32)
+        Serial.println("Battery level: MEDIUM");
+    }
+    else if (battery_level > 690) {
         status = 2;
-    else
+        Serial.println("Battery level: LOW");
+    }
+    else {
         status = 3;
+        Serial.println("Battery level: CRITICAL");
+    }
 
     if (status == 3) {
         // Block until charged
@@ -174,14 +193,16 @@ bool check_battery_level() {
             led_status(status);
             delay(1000);
             k += 1;
-        } while (analogRead(BATTERY_CHECK_PIN) < 32);
+        } while (analogRead(BATTERY_CHECK_PIN) < 690);
 
         // if (k%2) // Odd number of times executed. Turn on the LED by calling led_status one more time
         //     led_status(status)
+        return false;
     }
-    else
+    else {
         led_status(status);
-
+        return true;
+    }
     return (status == 3);
 }
 
@@ -204,7 +225,7 @@ void led_status(int state) {
                 set_color(0, 0, 0); // Turn off
             else
                 set_color(255, 0, 0); // Set to red
-            last_state = ~last_state; // Switch state
+            last_state = !last_state; // Switch state
             break;
     }
 }

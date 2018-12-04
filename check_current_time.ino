@@ -8,6 +8,8 @@ const float LAT = 39.299236;
 const float LONG = -76.609383;
 
 void setup_rtc() {
+    Serial.println("Initializing RTC...");
+
     if (! rtc.begin()) {
         Serial.println("Couldn't find RTC");
         while (1);
