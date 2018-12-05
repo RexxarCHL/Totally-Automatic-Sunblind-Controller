@@ -40,42 +40,62 @@ void adjust_rtc_time(int year, int month, int day, int hour, int minute, int sec
 }
 
 bool is_night(DateTime now) {
-    /* Sunrise/sunset calculation method from 
-     * https://www.r-bloggers.com/approximate-sunrise-and-sunset-times/
-     */
+    // controls if dst is active
+    int dst = 0;
 
-    // Data needed for sunrise/sunset calculation
-    const float d = (float) date_to_days(now.month(), now.day()); // Get the number of days from the start of the year
-    const float R = 6378.0; // The radius of the earth, in km
-    const float r = 149598000; // The distance to the sun, in km
-    const float epsilon = degrees_to_radians(23.45); // Radians between the xy-plane and the ecliptic plane
-    const float L = degrees_to_radians(LAT); // Convert observer's latitude to radians
+    // daylight savings will change in march and september
+    int dst_start_month = 3;
+    int dst_end_month = 9;
 
-    int long_sign = (LONG > 0)? 1 : -1;
-    int timezone = -4 * ((int)abs(LONG) % 15) * long_sign;
+    // check if it is daylight savings time
+    if (now.month() >= dst_start_month && now.month() <= dst_end_month)
+        dst = 1;
 
-    float theta = 2 * M_PI / 365.25 * (d - 80);
-    float z_s = r * sin(theta) * sin(epsilon);
-    float r_p = sqrt(pow(r, 2) - pow(z_s, 2));
-    float t0 = 1440 / (2 * M_PI) * acos((R - z_s*sin(L)) / (r_p * cos(L)));
+    // if it is daylight savings time, subtract 1 to sunrise/sunset times
+    int sunset = 19 - dst;
+    int sunrise = 9 - dst;
 
-    // a kludge adjustment for the radius of the sun
-    float that = t0 + 5.0;
+    // it is night time if it is after sunset or below sunrise
+    return (now.hour() >= sunset || now.hour() <= sunrise);
+}      
 
-    // Adjust "noon" for the fact that the earth's orbit is not circular:
-    float n = 720 - 10*sin(4*M_PI*(d-80) / 365.25) + 8*sin(2*M_PI*d / 365.25);
+// bool is_night(DateTime now) {
+//     /* Sunrise/sunset calculation method from 
+//      * https://www.r-bloggers.com/approximate-sunrise-and-sunset-times/
+//      */
 
-    // now sunrise and sunset are:
-    float sunrise = (n - that + timezone) / 60;
-    float sunset = (n + that + timezone) / 60;
+//     // Data needed for sunrise/sunset calculation
+//     const float d = (float) date_to_days(now.month(), now.day()); // Get the number of days from the start of the year
+//     const float R = 6378.0; // The radius of the earth, in km
+//     const float r = 149598000; // The distance to the sun, in km
+//     const float epsilon = degrees_to_radians(23.45); // Radians between the xy-plane and the ecliptic plane
+//     const float L = degrees_to_radians(LAT); // Convert observer's latitude to radians
 
-    if (now.hour() > sunset)
-        return true; // After sunset
-    else if (now.hour() < sunrise)
-        return true; // Before sunrise
+//     int long_sign = (LONG > 0)? 1 : -1;
+//     int timezone = -4 * ((int)abs(LONG) % 15) * long_sign;
 
-    return false; // After sunrise and before sunset
-}
+//     float theta = 2 * M_PI / 365.25 * (d - 80);
+//     float z_s = r * sin(theta) * sin(epsilon);
+//     float r_p = sqrt(pow(r, 2) - pow(z_s, 2));
+//     float t0 = 1440 / (2 * M_PI) * acos((R - z_s*sin(L)) / (r_p * cos(L)));
+
+//     // a kludge adjustment for the radius of the sun
+//     float that = t0 + 5.0;
+
+//     // Adjust "noon" for the fact that the earth's orbit is not circular:
+//     float n = 720 - 10*sin(4*M_PI*(d-80) / 365.25) + 8*sin(2*M_PI*d / 365.25);
+
+//     // now sunrise and sunset are:
+//     float sunrise = (n - that + timezone) / 60;
+//     float sunset = (n + that + timezone) / 60;
+
+//     if (now.hour() > sunset)
+//         return true; // After sunset
+//     else if (now.hour() < sunrise)
+//         return true; // Before sunrise
+
+//     return false; // After sunrise and before sunset
+// }
 
 float degrees_to_radians(float degrees) {
     return M_PI * degrees / 180.0;

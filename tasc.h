@@ -8,6 +8,7 @@
 #include "Adafruit_TSL2591.h" // For light sensor
 #include "RTClib.h"           // For RTC
 #include <Stepper.h>
+#include "Battery.h"
 
 // RTC circuit
 RTC_PCF8523 rtc;
@@ -78,7 +79,6 @@ enum SystemState {
     AUTO
 } current_system_state;
 
-
 void setup_others();
 void adjust_blind_angle();
 bool move_blind_angle(int offset);
@@ -95,6 +95,8 @@ const int LED_GREEN_PIN = 12;
 const int LED_BLUE_PIN = 10;
 const int MODE_LED_PIN = 13;
 
+Battery battery = Battery(6200, 9000, BATTERY_CHECK_PIN);
+
 // It takes about 4 turns from open to fully closed
 // current_blind_pos = [0, 64] and there are 16 positions in each turn 
 const int TURNS_TO_CLOSE = 4;
@@ -105,5 +107,14 @@ const int MAX_DECREASING_COUNT = 2;
 int current_blind_pos = 0;
 uint32_t last_blind_adjust = 0;
 uint32_t last_manual_action = 0;
+uint32_t last_battery_check = 0;
+
+// Parametric timing constants for the program, in seconds
+const int BATTERY_CHECK_INTERVAL = 10;
+const int BLIND_ADJUST_INTERVAL = 60;
+const int BLIND_ADJUST_INTERVAL_NO_PRESENCE = 60;
+const int AUTO_MODE_SWITCH_INTERVAL = 60;
+
+
 
 #endif
