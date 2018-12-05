@@ -24,6 +24,7 @@ float degrees_to_radians(float degrees);
 // const int MOTOR_ENABLE = 9;
 // const int MOTOR_ENCODER_A = 2;
 // const int MOTOR_ENCODER_B = 3;
+const int STEPPER_ENABLE = 8;
 const int STEPPER_IN1 = A0;
 const int STEPPER_IN2 = A1;
 const int STEPPER_IN3 = 2;
@@ -97,7 +98,7 @@ const int MODE_LED_PIN = 13;
 // It takes about 4 turns from open to fully closed
 // current_blind_pos = [0, 64] and there are 16 positions in each turn 
 const int TURNS_TO_CLOSE = 4;
-const int MAX_ANGLE_VALUE = 32;
+const int MAX_ANGLE_VALUE = 64;
 const int ONE_TURN = MAX_ANGLE_VALUE / TURNS_TO_CLOSE;
 const int HALF_TURN = ONE_TURN / 2;
 const int MAX_DECREASING_COUNT = 2;

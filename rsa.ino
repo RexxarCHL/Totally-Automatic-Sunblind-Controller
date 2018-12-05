@@ -32,6 +32,7 @@ void loop() {
         delay(1000);
     }
     // check_battery_level();
+    // delay(1000);
 
     // uint32_t current_time = get_current_time().unixtime(); // Get current time
     // switch (current_system_state) {
@@ -159,25 +160,27 @@ bool move_blind_angle(int offset){
     current_blind_pos = target_blind_pos;
 
     return check_battery_level();
+    // return true;
 }
 
 bool check_battery_level() {
     // Check battery level and block until battery is charged enough
     // Analog read returns in the range of [0, 1023]
     // Battery voltage = 9V ~ 6V
-    // Analog read results = 640 ~ 840
+    // Analog read results = 950 ~ 630
     int battery_level = analogRead(BATTERY_CHECK_PIN);
+    Serial.println(battery_level);
 
     int status = 0;
-    if (battery_level > 790) {
+    if (battery_level > 870) {
         status = 0;
         Serial.println("Battery level: HIGH");
     }
-    else if (battery_level > 740) {
+    else if (battery_level > 790) {
         status = 1;
         Serial.println("Battery level: MEDIUM");
     }
-    else if (battery_level > 690) {
+    else if (battery_level > 650) {
         status = 2;
         Serial.println("Battery level: LOW");
     }
@@ -193,7 +196,8 @@ bool check_battery_level() {
             led_status(status);
             delay(1000);
             k += 1;
-        } while (analogRead(BATTERY_CHECK_PIN) < 690);
+            Serial.println(analogRead(BATTERY_CHECK_PIN));
+        } while (analogRead(BATTERY_CHECK_PIN) < 700);
 
         // if (k%2) // Odd number of times executed. Turn on the LED by calling led_status one more time
         //     led_status(status)
