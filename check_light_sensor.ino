@@ -31,7 +31,7 @@ void configure_sensor() {
 
   /* Display the gain and integration time for reference sake */  
   Serial.println(F("------------------------------------"));
-  Serial.print  (F("Gain:         "));
+  //Serial.print  (F("Gain:         "));
   tsl2591Gain_t gain = tsl.getGain();
   switch(gain)
   {
@@ -48,8 +48,8 @@ void configure_sensor() {
       Serial.println(F("9876x (Max)"));
       break;
   }
-  Serial.print  (F("Timing:       "));
-  Serial.print((tsl.getTiming() + 1) * 100, DEC); 
+  //Serial.print  (F("Timing:       "));
+  //Serial.print((tsl.getTiming() + 1) * 100, DEC); 
   Serial.println(F(" ms"));
   Serial.println(F("------------------------------------"));
   Serial.println(F(""));

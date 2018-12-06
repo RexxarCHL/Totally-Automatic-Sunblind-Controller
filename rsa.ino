@@ -1,8 +1,8 @@
 #include "tasc.h"
 
 void setup() {
-    Serial.begin(57600);
-    Serial.println("setup: Initializing...");
+    //Serial.begin(57600);
+    //Serial.println("setup: Initializing...");
 
     // Initialize the sensors
     setup_rtc();
@@ -11,38 +11,61 @@ void setup() {
     setup_pir_sensor();
     setup_others();
 
-    Serial.println("setup: All sensors initialized");
+    //Serial.println("setup: All sensors initialized");
 
     // // Adjust to the best blind angle
     adjust_blind_angle();
-    Serial.println("Blind angle adjusted");
+    //Serial.println("Blind angle adjusted");
+
+    // DEMO: Set RTC to different time for night/day behaviors
+    // adjust_rtc_time(2018, 12, 6, 18, 58, 0); // Set to 2018/12/06 6:58 pm
+    adjust_rtc_time(2018, 12, 6, 8, 59, 0); // Set to 2018/12/06 8:58 am
 
     // // Initialize the state
-    // current_system_state = AUTO;
-    current_system_state = MANUAL;
+    current_system_state = AUTO;
+    // current_system_state = MANUAL;
 }
 
 void loop() {
-    if (get_current_time().unixtime() - last_battery_check > BATTERY_CHECK_INTERVAL)
+    uint32_t current_unix_time = get_current_time().unixtime(); // Get current time
+    if (current_unix_time - last_battery_check > BATTERY_CHECK_INTERVAL)
         check_battery_level(); // Wait for some time before checking battery
     
     delay(100);
-    Serial.print("System: "); Serial.println(current_system_state);
+    //Serial.print("System: "); Serial.println(current_system_state);
 
-    uint32_t current_time = get_current_time().unixtime(); // Get current time
     switch (current_system_state) {
         case AUTO:
             digitalWrite(MODE_LED_PIN, LOW);
+
+            // Check if it is night currently
+            if (is_night()) {
+                // It's night! Close the blind and do nothing else
+                if (current_blind_pos > 0) {
+                    // Move the blind back to fully closed position
+                    move_blind_angle(-current_blind_pos); 
+                }
+
+                // Sleep for a given amount of time
+                for (int sleep = 0; sleep < NIGHT_SLEEP_INTERVAL/8; sleep++) {
+                    // delay(8000);
+                    LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
+                }
+
+                return;
+            }
+
+
             // Check PIR sensor
             check_pir_sensor();
             if ((pir_state == HIGH) && 
-                ((current_time - last_blind_adjust) > BLIND_ADJUST_INTERVAL)) {
+                ((current_unix_time - last_blind_adjust) > BLIND_ADJUST_INTERVAL)) {
                 // Human presence detected and some time have passed since last adjustment
                 adjust_blind_angle();
             }
             else {
                 // No presence detected. Check time since last adjustment
-                if ((current_time - last_blind_adjust) > BLIND_ADJUST_INTERVAL_NO_PRESENCE) {
+                if ((current_unix_time - last_blind_adjust) > BLIND_ADJUST_INTERVAL_NO_PRESENCE) {
                     // One hour has passed since last blind adjustment
                     adjust_blind_angle();
                 }
@@ -52,8 +75,8 @@ void loop() {
             if (digitalRead(MANUAL_BUTTON_PIN) == LOW) {
                 // Manual mode button pressed! Switch to manual mode
                 current_system_state = MANUAL;
-                last_manual_action = current_time;
-                Serial.println("Switching to MANUAL");
+                last_manual_action = current_unix_time;
+                //Serial.println("Switching to MANUAL");
                 delay(100);
             }
 
@@ -62,12 +85,12 @@ void loop() {
         case MANUAL:
             digitalWrite(MODE_LED_PIN, HIGH);
             // TODO: Add an led for manual/auto indication, if possible
-            if ((current_time - last_manual_action > AUTO_MODE_SWITCH_INTERVAL) || 
+            if ((current_unix_time - last_manual_action > AUTO_MODE_SWITCH_INTERVAL) || 
                 (digitalRead(MANUAL_BUTTON_PIN) == LOW)) {
                 // One hour have passed since last manual action or manual mode button is pressed again
                 // Switch back to AUTO
                 current_system_state = AUTO;
-                Serial.println("Switching to AUTO");
+                //Serial.println("Switching to AUTO");
                 delay(100);
             }
             else {
@@ -122,7 +145,7 @@ void adjust_blind_angle() {
         max_reading = get_light_reading();
     }
 
-    Serial.print("direction:"); Serial.println(direction);
+    //Serial.print("direction:"); Serial.println(direction);
 
     // Note the blind have already been moved in this direction for HALF_TURN
     int current_offset = HALF_TURN;
@@ -143,9 +166,9 @@ void adjust_blind_angle() {
         delay(50); // Delay a bit?
         current_reading = get_light_reading();
 
-        Serial.print("Offset: "); Serial.println(current_offset);
-        Serial.print("Light: "); Serial.println(current_reading);
-        Serial.print("Max: "); Serial.println(max_reading);
+        //Serial.print("Offset: "); Serial.println(current_offset);
+        //Serial.print("Light: "); Serial.println(current_reading);
+        //Serial.print("Max: "); Serial.println(max_reading);
 
         if (current_reading <= (max_reading*1.1)){
             decreasing_count++;
@@ -194,21 +217,21 @@ bool check_battery_level() {
     // if (battery_level > 870) {
     if (battery_level > 50) {
         status = 0;
-        Serial.println("Battery level: HIGH");
+        //Serial.println("Battery level: HIGH");
     }
     // else if (battery_level > 790) {
     else if (battery_level > 35) {
         status = 1;
-        Serial.println("Battery level: MEDIUM");
+        //Serial.println("Battery level: MEDIUM");
     }
     // else if (battery_level > 650) {
     else if (battery_level > 10) {
         status = 2;
-        Serial.println("Battery level: LOW");
+        //Serial.println("Battery level: LOW");
     }
     else {
         status = 3;
-        Serial.println("Battery level: CRITICAL");
+        //Serial.println("Battery level: CRITICAL");
     }
 
     last_battery_check = get_current_time().unixtime();

@@ -9,6 +9,7 @@
 #include "RTClib.h"           // For RTC
 #include <Stepper.h>
 #include "Battery.h"
+#include "LowPower.h"
 
 // RTC circuit
 RTC_PCF8523 rtc;
@@ -16,7 +17,7 @@ RTC_PCF8523 rtc;
 void setup_rtc();
 DateTime get_current_time();
 void adjust_rtc_time(int year, int month, int day, int hour, int minute, int second);
-bool is_night(DateTime now);
+bool is_night();
 float degrees_to_radians(float degrees);
 
 // Servo control
@@ -114,6 +115,7 @@ const int BATTERY_CHECK_INTERVAL = 10;
 const int BLIND_ADJUST_INTERVAL = 60;
 const int BLIND_ADJUST_INTERVAL_NO_PRESENCE = 60;
 const int AUTO_MODE_SWITCH_INTERVAL = 60;
+const int NIGHT_SLEEP_INTERVAL = 24; // Must be multiples of 8
 
 
 

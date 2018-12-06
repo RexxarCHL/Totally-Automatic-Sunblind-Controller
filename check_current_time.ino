@@ -8,15 +8,15 @@ const float LAT = 39.299236;
 const float LONG = -76.609383;
 
 void setup_rtc() {
-    Serial.println("Initializing RTC...");
+    //Serial.println("Initializing RTC...");
 
     if (! rtc.begin()) {
-        Serial.println("Couldn't find RTC");
+        //Serial.println("Couldn't find RTC");
         while (1);
     }
 
     if (! rtc.initialized()) {
-        Serial.println("RTC is NOT running!");
+        //Serial.println("RTC is NOT running!");
         // following line sets the RTC to the date & time this sketch was compiled
         rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
         // This line sets the RTC with an explicit date & time, for example to set
@@ -24,7 +24,7 @@ void setup_rtc() {
         // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
     }
 
-    Serial.println("RTC initialized");
+    //Serial.println("RTC initialized");
 }
 
 DateTime get_current_time() {
@@ -39,7 +39,9 @@ void adjust_rtc_time(int year, int month, int day, int hour, int minute, int sec
     rtc.adjust(DateTime(year, month, day, hour, minute, second));
 }
 
-bool is_night(DateTime now) {
+bool is_night() {
+    DateTime now = get_current_time();
+
     // controls if dst is active
     int dst = 0;
 
@@ -56,7 +58,7 @@ bool is_night(DateTime now) {
     int sunrise = 9 - dst;
 
     // it is night time if it is after sunset or below sunrise
-    return (now.hour() >= sunset || now.hour() <= sunrise);
+    return (now.hour() > sunset || now.hour() < sunrise);
 }      
 
 // bool is_night(DateTime now) {

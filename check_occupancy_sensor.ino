@@ -4,7 +4,7 @@ void setup_pir_sensor() {
     // Set the pin modes
     pinMode(PIR_PIN, INPUT);
 
-    Serial.println("PIR sensor initialized");
+    //Serial.println("PIR sensor initialized");
 }
 
 bool check_pir_sensor() {
@@ -12,7 +12,7 @@ bool check_pir_sensor() {
     if (val == HIGH) {            // check if the input is HIGH
         if (pir_state == LOW) {
             // we have just turned on
-            Serial.println("Motion detected!");
+            //Serial.println("Motion detected!");
             // We only want to print on the output change, not state
             pir_state = HIGH;
         }
@@ -20,7 +20,7 @@ bool check_pir_sensor() {
     else {
         if (pir_state == HIGH){
             // we have just turned off
-            Serial.println("Motion ended!");
+            //Serial.println("Motion ended!");
             // We only want to print on the output change, not state
             pir_state = LOW;
         }
