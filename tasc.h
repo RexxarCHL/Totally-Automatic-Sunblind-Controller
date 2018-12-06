@@ -49,10 +49,10 @@ Wires for +, -, in3, in4 are borrowed
 
 // 4 counts per cycle, 12 cycles per revolution
 // 34 revolutions per output shaft revolution
-const float EVENT_COUNT_PER_REV = 4*12*34;
-const int DELTA_T = 30;
-const float K_prop = 3.0;
-const float K_D = 0.0;
+// const float EVENT_COUNT_PER_REV = 4*12*34;
+// const int DELTA_T = 30;
+// const float K_prop = 3.0;
+// const float K_D = 0.0;
 
 void setup_servo();
 void move_servo(int blind_pos);

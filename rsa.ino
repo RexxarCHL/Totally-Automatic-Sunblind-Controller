@@ -130,7 +130,7 @@ void adjust_blind_angle() {
     int initial_reading = get_light_reading(); // Get the initial reading
 
     /* Test which direction the motor needs to go to maximize the readings */
-    move_blind_angle(HALF_TURN); // Move the blind in one direction for one turn
+    move_blind_angle(ONE_TURN); // Move the blind in one direction for one turn
     int direction;
     int max_reading = get_light_reading();
     if (max_reading > initial_reading) {
@@ -140,14 +140,14 @@ void adjust_blind_angle() {
     else {
         // Reading decreased: move to the other direction
         direction = -1;
-        move_blind_angle(-1 * ONE_TURN); // Move the motor back for equal start point for both cases
+        move_blind_angle(-2 * ONE_TURN); // Move the motor back for equal start point for both cases
         max_reading = get_light_reading();
     }
 
     //Serial.print("direction:"); Serial.println(direction);
 
-    // Note the blind have already been moved in this direction for HALF_TURN
-    int current_offset = HALF_TURN;
+    // Note the blind have already been moved in this direction for ONE_TURN
+    int current_offset = ONE_TURN;
     int current_reading = 0;
     int decreasing_count = 0;
     bool status = false;
@@ -155,10 +155,11 @@ void adjust_blind_angle() {
         status = move_blind_angle(direction);
 
         if (!status) {
+            // Battery level was not enough!
             // Turn off the light sensor
             digitalWrite(LIGHT_SENSOR_ENABLE, LOW);
             last_blind_adjust = get_current_time().unixtime();
-            return; // Battery level was not enough!
+            return;
         }
         current_offset++;
 
