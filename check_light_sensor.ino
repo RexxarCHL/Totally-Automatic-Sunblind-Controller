@@ -6,12 +6,12 @@
  */
 void setup_light_sensor() {
     if (!tsl.begin()) {
-        Serial.println("Light sensor not found...");
+        // Serial.println("Light sensor not found...");
         while (1);
     }
 
     configure_sensor();
-    Serial.println("Light sensor initialized");
+    // Serial.println("Light sensor initialized");
 }
 
 void configure_sensor() {
@@ -36,23 +36,23 @@ void configure_sensor() {
   switch(gain)
   {
     case TSL2591_GAIN_LOW:
-      Serial.println(F("1x (Low)"));
+      // Serial.println(F("1x (Low)"));
       break;
     case TSL2591_GAIN_MED:
-      Serial.println(F("25x (Medium)"));
+      // Serial.println(F("25x (Medium)"));
       break;
     case TSL2591_GAIN_HIGH:
-      Serial.println(F("428x (High)"));
+      // Serial.println(F("428x (High)"));
       break;
     case TSL2591_GAIN_MAX:
-      Serial.println(F("9876x (Max)"));
+      // Serial.println(F("9876x (Max)"));
       break;
   }
   //Serial.print  (F("Timing:       "));
   //Serial.print((tsl.getTiming() + 1) * 100, DEC); 
-  Serial.println(F(" ms"));
-  Serial.println(F("------------------------------------"));
-  Serial.println(F(""));
+  // Serial.println(F(" ms"));
+  // Serial.println(F("------------------------------------"));
+  // Serial.println(F(""));
 }
 
 int get_light_reading() {

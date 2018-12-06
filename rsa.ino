@@ -1,7 +1,7 @@
 #include "tasc.h"
 
 void setup() {
-    //Serial.begin(57600);
+    Serial.begin(57600);
     //Serial.println("setup: Initializing...");
 
     // Initialize the sensors
@@ -19,7 +19,7 @@ void setup() {
 
     // DEMO: Set RTC to different time for night/day behaviors
     // adjust_rtc_time(2018, 12, 6, 18, 58, 0); // Set to 2018/12/06 6:58 pm
-    adjust_rtc_time(2018, 12, 6, 8, 59, 0); // Set to 2018/12/06 8:58 am
+    adjust_rtc_time(2018, 12, 6, 9, 59, 0); // Set to 2018/12/06 8:58 am
 
     // // Initialize the state
     current_system_state = AUTO;
@@ -48,8 +48,8 @@ void loop() {
 
                 // Sleep for a given amount of time
                 for (int sleep = 0; sleep < NIGHT_SLEEP_INTERVAL/8; sleep++) {
-                    // delay(8000);
-                    LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
+                    delay(8000);
+                    // LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF);
                 }
 
                 return;
@@ -114,7 +114,6 @@ void loop() {
 
 void setup_others() {
     // Battery level check related pins
-    // pinMode(BATTERY_CHECK_PIN, INPUT);
     battery.begin(5000, 9.0/4.0); // Reference voltage 5v, divider ratio 2.0
 
     // UI control related pins
